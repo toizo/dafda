@@ -25,13 +25,13 @@ namespace Dafda.Consuming
                 ?? throw new ArgumentNullException(nameof(fallbackHandler));
         }
 
-        private MessageRegistration GetMessageRegistrationFor(TransportLevelMessage message) =>
-            _messageHandlerRegistry.GetRegistrationFor(message.Metadata.Type)
-            ?? _fallbackHandler.GetFallback(message.Metadata.Type);
+        private MessageRegistration GetMessageRegistrationFor(MessageResult messageResult) =>
+            _messageHandlerRegistry.GetRegistrationFor(messageResult.Topic, messageResult.Message.Metadata.Type)
+            ?? _fallbackHandler.GetFallback(messageResult.Message.Metadata.Type);
 
-        public async Task Dispatch(TransportLevelMessage message)
+        public async Task Dispatch(MessageResult messageResult)
         {
-            var registration = GetMessageRegistrationFor(message);
+            var registration = GetMessageRegistrationFor(messageResult);
 
             var unitOfWork = _unitOfWorkFactory.CreateForHandlerType(registration.HandlerInstanceType);
             if (unitOfWork == null)
@@ -39,8 +39,8 @@ namespace Dafda.Consuming
                 throw new UnableToResolveUnitOfWorkForHandlerException($"Error! Unable to create unit of work for handler type \"{registration.HandlerInstanceType.FullName}\".");
             }
 
-            var messageInstance = message.ReadDataAs(registration.MessageInstanceType);
-            var context = new MessageHandlerContext(message.Metadata);
+            var messageInstance = messageResult.Message.ReadDataAs(registration.MessageInstanceType);
+            var context = new MessageHandlerContext(messageResult.Message.Metadata);
 
             await unitOfWork.Run(async handler =>
             {
@@ -48,9 +48,9 @@ namespace Dafda.Consuming
                 {
                     throw new InvalidMessageHandlerException($"Error! Message handler of type \"{registration.HandlerInstanceType.FullName}\" not instantiated in unit of work and message instance type of \"{registration.MessageInstanceType}\" for message type \"{registration.MessageType}\" can therefor not be handled.");
                 }
-                
+
                 // TODO -- verify that the handler is in fact an implementation of IMessageHandler<registration.MessageInstanceType> to provider sane error messages.
-                
+
                 await ExecuteHandler((dynamic) messageInstance, (dynamic) handler, context);
             });
         }
