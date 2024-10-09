@@ -22,6 +22,7 @@ namespace Dafda.Tests.Consuming
             var messageRegistrationStub = new MessageRegistrationBuilder()
                 .WithHandlerInstanceType(handlerStub.GetType())
                 .WithMessageInstanceType(typeof(FooMessage))
+                .WithTopic("")
                 .WithMessageType("foo")
                 .Build();
 
@@ -66,8 +67,8 @@ namespace Dafda.Tests.Consuming
         {
             var orderOfInvocation = new LinkedList<string>();
 
-            var dummyMessageResult = new MessageResultBuilder().WithTransportLevelMessage(new TransportLevelMessageBuilder().WithType("foo").Build()).Build();
-            var dummyMessageRegistration = new MessageRegistrationBuilder().WithMessageType("foo").Build();
+            var dummyMessageResult = new MessageResultBuilder().WithTransportLevelMessageType("foo").WithTopic("topic").Build();
+            var dummyMessageRegistration = new MessageRegistrationBuilder().WithMessageType("foo").WithTopic("topic").Build();
 
             var registry = new MessageHandlerRegistry();
             registry.Register(dummyMessageRegistration);
@@ -95,12 +96,14 @@ namespace Dafda.Tests.Consuming
             var messageRegistrationStub = new MessageRegistrationBuilder()
                 .WithHandlerInstanceType(handlerStub.GetType())
                 .WithMessageInstanceType(typeof(FooMessage))
+                .WithTopic("topic")
                 .WithMessageType("foo")
                 .Build();
 
             var wasCalled = false;
 
             var resultSpy = new MessageResultBuilder()
+                .WithTopic("topic")
                 .WithOnCommit(() =>
                 {
                     wasCalled = true;
@@ -128,16 +131,19 @@ namespace Dafda.Tests.Consuming
         public async Task will_call_commit_when_auto_commit_is_disabled()
         {
             var handlerStub = Dummy.Of<IMessageHandler<FooMessage>>();
+            const string topicName = "topic";
 
             var messageRegistrationStub = new MessageRegistrationBuilder()
                 .WithHandlerInstanceType(handlerStub.GetType())
                 .WithMessageInstanceType(typeof(FooMessage))
+                .WithTopic(topicName)
                 .WithMessageType("foo")
                 .Build();
 
             var wasCalled = false;
 
             var resultSpy = new MessageResultBuilder()
+                .WithTopic(topicName)
                 .WithOnCommit(() =>
                 {
                     wasCalled = true;
@@ -164,12 +170,13 @@ namespace Dafda.Tests.Consuming
         [Fact]
         public async Task creates_consumer_scope_when_consuming_single_message()
         {
-            var messageResultStub = new MessageResultBuilder().WithTransportLevelMessage(new TransportLevelMessageBuilder().WithType("foo").Build()).Build();
+            var messageResultStub = new MessageResultBuilder().WithTransportLevelMessageType("foo").WithTopic("topic").Build();
             var handlerStub = Dummy.Of<IMessageHandler<FooMessage>>();
 
             var messageRegistrationStub = new MessageRegistrationBuilder()
                 .WithHandlerInstanceType(handlerStub.GetType())
                 .WithMessageInstanceType(typeof(FooMessage))
+                .WithTopic("topic")
                 .WithMessageType("foo")
                 .Build();
 
@@ -193,12 +200,13 @@ namespace Dafda.Tests.Consuming
         [Fact]
         public async Task disposes_consumer_scope_when_consuming_single_message()
         {
-            var messageResultStub = new MessageResultBuilder().WithTransportLevelMessage(new TransportLevelMessageBuilder().WithType("foo").Build()).Build();
+            var messageResultStub = new MessageResultBuilder().WithTransportLevelMessageType("foo").WithTopic("topic").Build();
             var handlerStub = Dummy.Of<IMessageHandler<FooMessage>>();
 
             var messageRegistrationStub = new MessageRegistrationBuilder()
                 .WithHandlerInstanceType(handlerStub.GetType())
                 .WithMessageInstanceType(typeof(FooMessage))
+                .WithTopic("topic")
                 .WithMessageType("foo")
                 .Build();
 
@@ -222,12 +230,13 @@ namespace Dafda.Tests.Consuming
         [Fact]
         public async Task creates_consumer_scope_when_consuming_multiple_messages()
         {
-            var messageResultStub = new MessageResultBuilder().WithTransportLevelMessage(new TransportLevelMessageBuilder().WithType("foo").Build()).Build();
+            var messageResultStub = new MessageResultBuilder().WithTransportLevelMessageType("foo").WithTopic("topic").Build();
             var handlerStub = Dummy.Of<IMessageHandler<FooMessage>>();
 
             var messageRegistrationStub = new MessageRegistrationBuilder()
                 .WithHandlerInstanceType(handlerStub.GetType())
                 .WithMessageInstanceType(typeof(FooMessage))
+                .WithTopic("topic")
                 .WithMessageType("foo")
                 .Build();
 
@@ -269,12 +278,13 @@ namespace Dafda.Tests.Consuming
         [Fact]
         public async Task disposes_consumer_scope_when_consuming_multiple_messages()
         {
-            var messageResultStub = new MessageResultBuilder().WithTransportLevelMessage(new TransportLevelMessageBuilder().WithType("foo").Build()).Build();
+            var messageResultStub = new MessageResultBuilder().WithTransportLevelMessageType("foo").WithTopic("topic").Build();
             var handlerStub = Dummy.Of<IMessageHandler<FooMessage>>();
 
             var messageRegistrationStub = new MessageRegistrationBuilder()
                 .WithHandlerInstanceType(handlerStub.GetType())
                 .WithMessageInstanceType(typeof(FooMessage))
+                .WithTopic("topic")
                 .WithMessageType("foo")
                 .Build();
 

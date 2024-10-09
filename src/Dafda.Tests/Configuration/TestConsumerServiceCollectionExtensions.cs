@@ -22,6 +22,7 @@ namespace Dafda.Tests.Configuration
         [Fact( /*Skip = "is this relevant for testing these extensions"*/)]
         public async Task Can_consume_message()
         {
+            var dummyTopic = "dummyTopic";
             var dummyMessage = new DummyMessage();
             var messageStub = new TransportLevelMessageBuilder()
                 .WithType(nameof(DummyMessage))
@@ -29,6 +30,7 @@ namespace Dafda.Tests.Configuration
                 .Build();
             var messageResult = new MessageResultBuilder()
                 .WithTransportLevelMessage(messageStub)
+                .WithTopic(dummyTopic)
                 .Build();
 
             var services = new ServiceCollection();
@@ -38,7 +40,7 @@ namespace Dafda.Tests.Configuration
             {
                 options.WithBootstrapServers("dummyBootstrapServer");
                 options.WithGroupId("dummyGroupId");
-                options.RegisterMessageHandler<DummyMessage, DummyMessageHandler>("dummyTopic", nameof(DummyMessage));
+                options.RegisterMessageHandler<DummyMessage, DummyMessageHandler>(dummyTopic, nameof(DummyMessage));
 
                 options.WithConsumerScopeFactory(_ =>new ConsumerScopeFactoryStub(new ConsumerScopeStub(messageResult)));
             });
@@ -93,8 +95,10 @@ namespace Dafda.Tests.Configuration
                 .WithType(nameof(DummyMessage), parentId, "som=der")
                 .WithData(dummyMessage)
                 .Build();
+            var dummyTopic = "dummyTopic";
             var messageResult = new MessageResultBuilder()
                 .WithTransportLevelMessage(messageStub)
+                .WithTopic(dummyTopic)
                 .Build();
 
             var services = new ServiceCollection();
@@ -104,7 +108,7 @@ namespace Dafda.Tests.Configuration
             {
                 options.WithBootstrapServers("dummyBootstrapServer");
                 options.WithGroupId("dummyGroupId");
-                options.RegisterMessageHandler<DummyMessage, DummyMessageHandler>("dummyTopic", nameof(DummyMessage));
+                options.RegisterMessageHandler<DummyMessage, DummyMessageHandler>(dummyTopic, nameof(DummyMessage));
                 options.WithConsumerScopeFactory(_ => new ConsumerScopeFactoryStub(new ConsumerScopeStub(messageResult)));
             });
             var serviceProvider = services.BuildServiceProvider();
